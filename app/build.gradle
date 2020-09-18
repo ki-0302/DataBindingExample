@@ -16,6 +16,13 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Required for Data Binding.
+    // マルチモジュールでの注意点としてappモジュールがDataBindingを使用しない場合でも、
+    // DataBindingを使用しているモジュールをappモジュールから使用する場合はこの宣言をする必要がある。
+    dataBinding {
+        enabled = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false

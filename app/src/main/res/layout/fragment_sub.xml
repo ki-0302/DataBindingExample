@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="information"
+            type="com.maho_ya.databindingexample.Information" />
+        <variable
+            name="user"
+            type="com.maho_ya.databindingexample.User" />
+
+
+        <!-- Listを使用する方法。typeはエスケープする必要があるため&lt;の記載がある -->
+        <import type="java.util.List"/>
+        <variable name="list" type="List&lt;String>"/>
+        <!-- Mapの利用方法 -->
+        <import type="java.util.Map"/>
+        <variable name="map" type="Map&lt;String, String>"/>
+        
+        <variable
+            name="handler"
+            type="com.maho_ya.databindingexample.SubFragment.Handler" />
+
+        <variable
+            name="presenter"
+            type="com.maho_ya.databindingexample.SubFragment.Presenter" />
+
+        <!-- importすることで例えば以下の場合、Viewをバインディング式で利用可能になる。 -->
+        <import type="android.view.View"/>
+        <!-- クラス名が他とかぶる場合はエイリアスで回避できる -->
+        <import type="android.view.Display" alias="disp"/>
+        <import type="com.maho_ya.databindingexample.MyUtils" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- 式には四則演算、比較、三項演算子などが使用できる。 -->
+
+        <!-- null合体演算子。nullの場合、右を処理する -->
+        <TextView
+            android:id="@+id/informationTextView"
+            android:layout_width="138dp"
+            android:layout_height="15dp"
+            android:text="@{information.showCaption ? information.caption : information.description}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.505"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.085"
+            tools:text="Information message" />
+
+        <!-- 他のViewも参照できる -->
+        <TextView
+            android:id="@+id/userTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.lastName ?? user.firstName}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.507"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/informationTextView"
+            app:layout_constraintVertical_bias="0.083"
+            tools:text="User" />
+
+        <!-- リストの表示。添字を使用可能 -->
+        <TextView
+            android:id="@+id/copyUserTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{userTextView.text}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/userTextView"
+            app:layout_constraintVertical_bias="0.078"
+            tools:text="Copy User" />
+
+        <!-- Mapの表示。属性はバッククォートで表記可能 -->
+        <TextView
+            android:id="@+id/listTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{list[2]}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/copyUserTextView"
+            app:layout_constraintVertical_bias="0.081"
+            tools:text="List" />
+
+        <!-- メソッド参照。コンパイル時に処理される。イベント発生時に行いたい場合は後述のリスナーバインディングを使用する必要がある -->
+        <TextView
+            android:id="@+id/mapTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{map[`bar`]}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/listTextView"
+            app:layout_constraintVertical_bias="0.077"
+            tools:text="List" />
+
+        <Button
+            android:id="@+id/methodButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{handler.onClickButton}"
+            android:text="@{Integer.toString(handler.count)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mapTextView"
+            app:layout_constraintVertical_bias="0.047"
+            tools:text="methodButton" />
+
+        <!-- リスナーバインディング。バインディング式はイベント発生時に処理される。 -->
+        <!-- 複雑な処理も実行可能なため、可読性や理解のしやすさの観点から、なるべくシンプルに記述する必要がある。 -->
+        <!-- パラメーターが必要なければ以下のような書き方でも問題ない。 -->
+        <!-- android:onClick="@{() -> presenter.onClickButton()}" -->
+        <Button
+            android:id="@+id/listenerBindingButon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(view) -> presenter.onClickButton(view,`test`)}"
+            android:text="listenerBindingButon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/methodButton"
+            app:layout_constraintVertical_bias="0.047"
+            tools:text="listenerBindingButon" />
+
+        <!-- import使用した場合、以下の用にimportしたものが利用可能になる。以下の場合、View -->
+        <TextView
+            android:id="@+id/importTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="importTextView"
+            android:visibility="@{information.showCaption ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/listenerBindingButon"
+            app:layout_constraintVertical_bias="0.077"
+            tools:text="importTextView" />
+
+        <!-- クラスをインポートし、静的メソッドを呼ぶことが可能 -->
+        <TextView
+            android:id="@+id/importClass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            android:text="@{MyUtils.convertName(user.firstName)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/importTextView"
+            app:layout_constraintVertical_bias="0.077"
+            tools:text="importClass" />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/importClass"
+            app:layout_constraintVertical_bias="0.077"
+            >
+            <!-- Layoutをincludeして変数を渡す方法 -->
+            <include layout="@layout/name"
+                bind:user2="@{user}" />
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
